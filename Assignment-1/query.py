@@ -37,8 +37,6 @@ def _compute_doc_norms(inverted_index: InvertedIndex, doc_count: int) -> DocNorm
     return dict(doc_norms)
 
 
-
-
 def queryData(
     inverted_index: InvertedIndex,
     query: str,
@@ -56,6 +54,7 @@ def queryData(
     # Compute corpus size and document norms if not provided.
     if doc_norms is None:
         doc_ids = _collect_doc_ids(inverted_index)
+
         doc_count = len(doc_ids)
         doc_norms = _compute_doc_norms(inverted_index, doc_count)
     else:
@@ -66,10 +65,9 @@ def queryData(
     query_norm_sq = 0.0
 
     for term, tfq in query_tf.items():
-        if term not in inverted_index:
+        postings = inverted_index.get(term)
+        if not postings:
             continue
-
-        postings = inverted_index[term]
         doc_freq = len(postings)
         idf = _compute_idf(doc_count, doc_freq)
         wq = tfq * idf
