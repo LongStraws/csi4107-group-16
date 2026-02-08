@@ -239,8 +239,6 @@ Dict[str, Dict[str, int]]
 #### Term Frequency Storage
 Term frequencies within each document are mapped within the dictionary for efficient incremenation.
 
-- [ANY OPTIMIZATIONS]
-
 ### Step 3: Retrieval and Ranking
 
 #### Candidate Document Selection
@@ -253,8 +251,6 @@ Term frequency-inverse document frequency weights using smoothed idf:
 
 #### Cosine Similarity
 Scores are calculated as the normalized dot product between TF-IDF weighted query and document vectors, with precomputed document norms for efficiency.
-
-- [ANY OPTIMIZATIONS]
 
 ## Vocabulary Statistics
 
@@ -297,6 +293,10 @@ First 10 answers for Query 2:
 
 ## Evaluation
 
+Creating qrels.txt:
+    
+    awk '{print $1, 0, $2, $3}' "/qrelstest.tsv" > "/qrels/qrels.txt"
+
 trec_eval command used: 
     
     ./trec_eval "/qrels/qrels.txt" "/RESULTS.txt"
@@ -307,5 +307,8 @@ MAP score:
 
 ## Discussion
 
-- [DISCUSS PERFORMANCE, ERROR CASES, AND OBSERVATIONS]
-The MAP score of 0.5300 indicates a very effective retrieval.
+The MAP score of 0.5300 indicates that the retrieval algorithm is effective at ranking relevant documents. The top 10 results for the first two queries show a smooth decrease in similarity scores, suggesting that the TF–IDF weighting and cosine similarity are functioning as intended.
+
+The relatively large vocabulary size (29,953 terms) reflects the diversity of the document collection and helps explain why similarity scores are relatively small, as term weights are distributed across many unique words. Stemming and stopword removal helps reduce noise in the index but some relevant documents may still be missed when they do not share exact query terms with the documents.
+
+Most retrieval errors are likely due the inability of TF-IDF to capture semantic relationships or synonymy between terms.
