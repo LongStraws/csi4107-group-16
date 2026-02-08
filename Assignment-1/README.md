@@ -236,7 +236,6 @@ Uses dictionary mapping for dynamic index building. Dictionary maps terms to a s
 
 Dict[str, Dict[str, int]]
 
-
 #### Term Frequency Storage
 Term frequencies within each document are mapped within the dictionary for efficient incremenation.
 
@@ -299,10 +298,11 @@ First 10 answers for Query 2:
 ## Evaluation
 
 trec_eval command used: 
+    
     ./trec_eval "/qrels/qrels.txt" "/RESULTS.txt"
 
 MAP score: 
-
+    
     0.5300
 
 ## Discussion
