@@ -27,6 +27,9 @@ def prompt_non_empty(prompt: str) -> str:
 def main():
     stop_words = load_stopwords()
     inverted_index = build_inverted_index("corpus.jsonl", stop_words)
+    """print("Vocab Size:", len(inverted_index)) #To get vocab count and 100 token
+    sample_tokens = list(inverted_index.keys())[:100]
+    print(sample_tokens)"""
     run_name = prompt_non_empty("Enter run name: ")
     test_query_ids = load_test_query_ids("qrels/test.tsv")
     with open("RESULTS.txt", "w", encoding="utf-8") as results_file:
