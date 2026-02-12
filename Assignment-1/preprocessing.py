@@ -1,25 +1,30 @@
+# STEP 1
+
 import re
 from typing import List, Set
 from nltk.tokenize import word_tokenize
 from nltk.stem import PorterStemmer
 
+def getStopwords(filePath = "List of Stopwords.html"):
+    with open(filePath, encoding="utf-8") as file:
+        stopWords = file.read()
+    stopWords = re.sub(r"<[^>]+>", "", stopWords) #Removes html.
+    return set(word.strip() for word in stopWords.splitlines() if word.strip())
 
-def load_stopwords(file_path: str = "List of Stopwords.html") -> Set[str]:
-    with open(file_path, encoding="utf-8") as file:
-        content = file.read()
-    content = re.sub(r"<[^>]+>", "", content)
-    return set(word.strip() for word in content.splitlines() if word.strip())
-
-
-def preprocess(text: str, stop_words: Set[str], stem: bool = False) -> List[str]:
+def preprocess(text, stopWords, stem = False):
     text = text.lower()
     text = re.sub(r"[^a-z\s]", " ", text)
+    tokens = word_tokenize(text.lower())
+    cleanedTokens = []
 
-    tokens = word_tokenize(text)
-    tokens = [word for word in tokens if word not in stop_words]
+    #Removes all stopwords from the tokens.
+    for word in tokens:
+        if word not in stopWords:
+            cleanedTokens.append(word)
 
+    #Stems the index words if stem is set to true.
     if stem:
         stemmer = PorterStemmer()
-        tokens = [stemmer.stem(word) for word in tokens]
+        return [stemmer.stem(word) for word in cleanedTokens]
 
-    return tokens
+    return cleanedTokens

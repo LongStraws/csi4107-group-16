@@ -1,6 +1,6 @@
 from json import loads
-from indexing import build_inverted_index
-from preprocessing import load_stopwords
+from indexing import buildInvertedIndex
+from preprocessing import getStopwords
 from query import queryData
 from typing import List, Tuple
 
@@ -25,8 +25,8 @@ def prompt_non_empty(prompt: str) -> str:
 
 
 def main():
-    stop_words = load_stopwords()
-    inverted_index = build_inverted_index("corpus.jsonl", stop_words)
+    stop_words = getStopwords()
+    inverted_index = buildInvertedIndex("corpus.jsonl", stop_words)
     """print("Vocab Size:", len(inverted_index)) #To get vocab count and 100 token
     sample_tokens = list(inverted_index.keys())[:100]
     print(sample_tokens)"""
