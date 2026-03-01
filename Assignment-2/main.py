@@ -3,6 +3,8 @@ from indexing import buildInvertedIndex
 from preprocessing import getStopwords
 from query import queryData
 from typing import List, Tuple
+import sbert
+import cbert
 
 
 def load_test_query_ids(path: str) -> set[str]:
@@ -22,6 +24,14 @@ def prompt_non_empty(prompt: str) -> str:
         if value:
             return value
         print("Input cannot be empty. Please try again.")
+
+def getRerankDocs(corpus):
+    docs = {}
+    with open(corpus, "r", encoding="utf-8") as file:
+        for line in file:
+            obj = loads(line)
+            docs[obj["_id"]] = obj["title"] + " " + obj["text"]
+    return docs
 
 
 def main():
@@ -45,12 +55,16 @@ def main():
                     inverted_index, query_text, stop_words
                 )
 
+                #RERANK
+                docTexts = getRerankDocs("corpus.jsonl")
+                docIDs = [docID for docID, _ in ranked_results[:100]]
+                rerankedResults = sbert.rerank(query_text, docTexts, docIDs)
+                #rerankedResults = cbert.rerank(query_text, docTexts, docIDs)
+
                 # Output in TREC format for top-100 results.
-                for rank, (doc_id, score) in enumerate(
-                    ranked_results[:100], start=1
-                ):
+                for rank, doc_id in enumerate(rerankedResults[:100], start=1):
                     results_file.write(
-                        f"{query_id} Q0 {doc_id} {rank} {score:.6f} {run_name}\n"
+                        f"{query_id} Q0 {doc_id} {rank} {100-rank} {run_name}\n"
                     )
 
 

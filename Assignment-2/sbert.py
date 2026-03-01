@@ -7,7 +7,7 @@ model = SentenceTransformer("all-MiniLM-L6-v2")
 
 def rerank(query, docTexts, docIDs):
 
-    docs = [docTexts(id) for id in docIDs]
+    docs = [docTexts[id] for id in docIDs]
 
     #Encodes documents and query using SBERT and determines the similarity pairings
     docEmbeddings = model.encode(docs)
