@@ -37,12 +37,37 @@ def getRerankDocs(corpus):
 def main():
     stop_words = getStopwords()
     inverted_index = buildInvertedIndex("corpus.jsonl", stop_words)
-    """print("Vocab Size:", len(inverted_index)) #To get vocab count and 100 token
-    sample_tokens = list(inverted_index.keys())[:100]
-    print(sample_tokens)"""
     run_name = prompt_non_empty("Enter run name: ")
     test_query_ids = load_test_query_ids("qrels/test.tsv")
+    
+    #RESULTS.txt to get ranking with CrossEncoder
     with open("RESULTS.txt", "w", encoding="utf-8") as results_file:
+        with open("queries.jsonl", "r", encoding="utf-8") as file:
+            for line in file:
+                data = loads(line)
+                query_id = data["_id"]
+                if query_id not in test_query_ids:
+                    continue
+
+                query_text = data["text"]
+                ranked_results: List[Tuple[str, float]] = queryData(
+                    inverted_index, query_text, stop_words
+                )
+
+                #RERANK
+                docTexts = getRerankDocs("corpus.jsonl")
+                docIDs = [docID for docID, _ in ranked_results[:100]]
+                #rerankedResults = sbert.rerank(query_text, docTexts, docIDs)
+                rerankedResults = cbert.rerank(query_text, docTexts, docIDs) #better option
+
+                # Output in TREC format for top-100 results.
+                for rank, doc_id in enumerate(rerankedResults[:100], start=1):
+                    results_file.write(
+                        f"{query_id} Q0 {doc_id} {rank} {100-rank} {run_name}\n"
+                    )
+    
+    #Results2.txt to get ranking with SentenceTransformer
+    """with open("RESULTS2.txt", "w", encoding="utf-8") as results_file:
         with open("queries.jsonl", "r", encoding="utf-8") as file:
             for line in file:
                 data = loads(line)
@@ -65,7 +90,7 @@ def main():
                 for rank, doc_id in enumerate(rerankedResults[:100], start=1):
                     results_file.write(
                         f"{query_id} Q0 {doc_id} {rank} {100-rank} {run_name}\n"
-                    )
+                    )"""
 
 
 if __name__ == "__main__":
