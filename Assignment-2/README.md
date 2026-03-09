@@ -8,23 +8,23 @@
 
 ## Task Division
 
-- Yanya Osamn: [Task]
-- Kevin Govier: [Task]
+- Yahya Osman: README/report writing and submission preparation.
+- Kevin Govier: neural model setup and integration (SBERT + Cross-Encoder).
 - Emily Cheng: Results and Evaluation
 
 ## Program Functionality
 
 ### Neural Model 1 (Sentence Transformer (SBERT): all-MiniLM-L6-v2)
 
-[Details]
+We use a bi-encoder SBERT model to generate dense embeddings for the query and each candidate document. Cosine similarity is computed between the query embedding and each document embedding, and the candidates are re-ranked by descending similarity.
 
 ### Neural Model 2 (Cross-Encoder BERT: ms-marco-MiniLM-L-6-v2)
 
-[Details]
+We use a Cross-Encoder BERT model that scores each (query, document) pair directly. The model outputs a relevance score for each candidate, and the documents are re-ranked by descending score.
 
 ### Results Generation
 
-[Details]
+We first retrieve candidate documents using TF-IDF cosine similarity over an inverted index. For each test query, we take the top-100 candidates and apply a neural re-ranker (SBERT or Cross-Encoder). The final ranking is written in TREC format.
 
 ## How to Run
 
@@ -36,15 +36,28 @@
     - `python -m pip install --upgrade pip`
     - `python -m pip install sentence-transformers`
 - Run commands:
-  - `python Assignment-2/main.py > Assignment-2/RESULTS.txt`
+  - `python3 main.py`
+  - Enter a run name when prompted (used in the output file)
 - Output:
-  - Results file path: `Assignment-2/RESULTS.txt`
-  - Note: each run overwrites `Assignment-2/RESULTS.txt`
-  - Note: only queries listed in `Assignment-2/qrels/test.tsv` are processed
+  - Results file path: `RESULTS.txt`
+  - Note: each run overwrites `RESULTS.txt`
+  - Note: only queries listed in `qrels/test.tsv` are processed
+  - Note: for submission, rename `RESULTS.txt` to `Results` if required
 
 ## Algorithms, Data Structures, and Optimizations
 
-[Details]
+Preprocessing and Indexing
+- Lowercase, remove non-alphabetic characters, tokenize with NLTK, remove stopwords from `List of Stopwords.html`.
+- Build an inverted index mapping term -> {doc_id: tf}.
+
+Retrieval (TF-IDF)
+- Weighting: tf-idf with `IDF = log((N+1)/(df+1)) + 1`.
+- Similarity: cosine similarity between query vector and document vectors.
+- Candidate set: documents containing at least one query term.
+
+Neural Re-ranking
+- SBERT bi-encoder: cosine similarity between query and document embeddings.
+- Cross-Encoder: direct relevance scoring for each (query, document) pair.
 
 ## Results
 ### SBERT
@@ -120,3 +133,4 @@ The best method is Cross-Encoder BERT with a 0.6492 MAP score and a P@10 score o
 The MAP score for the TF-IDF method was 0.5300. Both SBERT and Cross-Encoder BERT have improvement over the TF-IDF system.
 
 ## Discussion
+The Cross-Encoder BERT re-ranking achieved the best MAP and P@10, improving on both SBERT and the TF-IDF baseline. SBERT provides a faster re-rank due to independent embeddings, while the Cross-Encoder is slower but more accurate because it models query-document interactions directly. Overall, the neural re-rankers provided meaningful gains over the classical TF-IDF system.
